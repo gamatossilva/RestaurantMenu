@@ -1,31 +1,42 @@
 package com.example.guilh.restaurantmenu;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<RestaurantMenuItems>> {
 
-    ListView restaurantsListView;
+    ExpandableListView restaurantsExpandableListView;
     ArrayList<String> restaurantsArrayList = new ArrayList<>();
-    ArrayAdapter<String> adapter;
+    ArrayList<RestaurantMenuItems> restaurantMenuItemsArrayList = new ArrayList<>();
+    RestaurantMenuAdapter adapter;
+
+    List<String> listGroups = new ArrayList<>();
+    Map<String, List<RestaurantMenuItems>> listItemsGroup = new HashMap<>();
+    private int amount;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, restaurantsArrayList);
-        restaurantsListView = (ListView) findViewById(R.id.restaurantsList);
-        restaurantsListView.setAdapter(adapter);
+
+        restaurantsExpandableListView = (ExpandableListView) findViewById(R.id.restaurantsList);
 
         RestaurantApiInterface apiInterface = ApiClient.getClient().create(RestaurantApiInterface.class);
         Call<RestaurantsList> call = apiInterface.getRestaurantsList();
@@ -37,10 +48,16 @@ public class MainActivity extends AppCompatActivity {
                     RestaurantsList restaurantsList = response.body();
 
                     for (int i = 0; i < restaurantsList.getRestaurants().size(); i++) {
-                        Restaurants restaurants = restaurantsList.getRestaurants().get(i);
+                        final Restaurants restaurants = restaurantsList.getRestaurants().get(i);
+                        amount = restaurantsList.getRestaurants().size();
+                        listGroups.add(restaurants.getName());
+                        for (int j = 1; j <= amount; j++) {
 
-                        restaurantsArrayList.add(restaurants.getId() + ". " + restaurants.getName());
-                        adapter.notifyDataSetChanged();
+                            LoaderManager loaderManager = getSupportLoaderManager();
+                            loaderManager.initLoader(j, null, MainActivity.this);
+                        }
+
+
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "Error: " + response.errorBody(), Toast.LENGTH_SHORT).show();
@@ -53,6 +70,28 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    @NonNull
+    @Override
+    public Loader<List<RestaurantMenuItems>> onCreateLoader(int id, @Nullable Bundle args) {
+        return new RestaurantMenuLoader(this, amount, id);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<List<RestaurantMenuItems>> loader, List<RestaurantMenuItems> data) {
+
+
+        listItemsGroup.put(listGroups.get(loader.getId() - 1), data);
+
+
+        adapter = new RestaurantMenuAdapter(this, listGroups, listItemsGroup);
+        restaurantsExpandableListView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<List<RestaurantMenuItems>> loader) {
 
     }
 }
