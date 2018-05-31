@@ -5,6 +5,11 @@
     android:id="@+id/restaurantsList"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:padding="8dp"
+    android:background="#333333"
+    tools:context=".MainActivity"
+    android:groupIndicator="@null"
+    android:divider="@android:color/white"
+    android:dividerHeight="1dp">
 
 </ExpandableListView>
