@@ -16,6 +16,7 @@ public class RestaurantMenuAdapter extends BaseExpandableListAdapter {
     private List<String> listGroups;
     private Map<String, List<RestaurantMenuItems>> listItemsGroup;
     private Context context;
+    ImageView arrowImageView;
 
     public RestaurantMenuAdapter(Context context, List<String> groups, Map<String, List<RestaurantMenuItems>> itemsGroup) {
         this.context = context;
@@ -65,6 +66,11 @@ public class RestaurantMenuAdapter extends BaseExpandableListAdapter {
             convertView = layoutInflater.inflate(R.layout.group, null);
         }
 
+        arrowImageView = convertView.findViewById(R.id.arrowImageView);
+        arrowImageView.setImageResource(R.drawable.ic_keyboard_arrow_down_black_24dp);
+        if (isExpanded) {
+            arrowImageView.setImageResource(R.drawable.ic_keyboard_arrow_up_black_24dp);
+        }
         TextView tvGroup = (TextView) convertView.findViewById(R.id.tvGroup);
         tvGroup.setText(getGroup(groupPosition).toString());
 
@@ -100,4 +106,5 @@ public class RestaurantMenuAdapter extends BaseExpandableListAdapter {
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
+    
 }
