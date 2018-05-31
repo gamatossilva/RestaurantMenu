@@ -1,2 +1,2 @@
-# RestaurantMenu
-App to obtain the WebService-Python data
+# Restaurant Menu
+App to get the WebService-Python data
